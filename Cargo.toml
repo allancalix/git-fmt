@@ -1,0 +1,18 @@
+[package]
+name = "git-fmt"
+version = "0.0.1"
+authors = ["Allan Calix <allan@allancalix.com>"]
+
+[[bin]]
+path = "src/main.rs"
+name = "git-fmt"
+
+[workspace]
+members = [
+  "formatter",
+]
+
+[dependencies]
+git2 = "0.10.0"
+formatter = { version = "0.0.1", path = "formatter" }
+

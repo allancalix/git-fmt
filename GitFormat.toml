@@ -1,0 +1,7 @@
+[rust]
+  command = "rustfmt {{STAGED_FILE}}"
+  extensions = ["rs"]
+
+[go]
+  command = "gofmt {{STAGED_FILE}} > {{STAGED_FILE}}"
+  extensions = ["go"]
