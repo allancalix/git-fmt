@@ -11,7 +11,7 @@ Example `./GitFormat.toml`
   extensions = ["rs"]
 
 [go]
-  command = "gofmt {{STAGED_FILE}} > {{STAGED_FILE}}"
+  command = "gofmt -w {{STAGED_FILE}}"
   extensions = ["go"]
 ```
 
