@@ -36,7 +36,7 @@ impl Formatter {
     /// repository. This allows `git fmt` to work from anywhere within a repository.
     /// This method does not work in bare repositories.
     pub fn from_root_config() -> Result<Self, Box<dyn Error>> {
-        let repo = Repository::init(".")?;
+        let repo = Repository::open(".")?;
         let workdir = repo.workdir().unwrap_or(Path::new("."));
         let config_content = read_to_string(workdir.join(CONFIG_NAME))?;
         Self::new(&config_content, repo)
