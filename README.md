@@ -25,3 +25,16 @@ ignored to prevent unverifiable changes.
 git fmt
 ```
 
+## Installation
+
+1. `git-fmt` is a standalone binary. To install, you can either build from source
+or download the (OSX only) binary from
+[releases](https://github.com/allancalix/git-fmt/releases).
+
+  ### Building from source
+  ```bash
+    git clone https://github.com/allancalix/git-fmt.git && cd git-fmt
+    cargo build --release
+  ```
+2. Place the binary somewhere in `$PATH`.
+
