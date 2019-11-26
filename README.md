@@ -1,28 +1,16 @@
 # git-fmt
 
 git-fmt extends git to easily apply a variety of formatters to a set of changes.
-Formatters are configured in a `GitFormat.toml` located in the root of the
-repository.
+Each formatter will be applied (in order) with the provided command to all
+matching file extensions. **Formatters are only applied to staged files to
+provide a chance to review changes made.**
 
-Example `./GitFormat.toml`
-```toml
-[rust]
-  command = "rustfmt {{STAGED_FILE}}"
-  extensions = ["rs"]
-
-[go]
-  command = "gofmt -w {{STAGED_FILE}}"
-  extensions = ["go"]
-```
-
-Formatting is _only_ applied to files that are staged. This makes it easy to
-verify changes before commit. Files that are staged and also modified will be
-ignored to prevent unverifiable changes.
-
-## Use
+The basic workflow anticipated might look something like:
 ```bash
-# From anywhere in the repository
+git add .
 git fmt
+git diff # Examine changes made by formatters.
+git add . && git commit -m 'I like the formatter changes!'
 ```
 
 ## Installation
@@ -38,3 +26,26 @@ or download the (OSX only) binary from
   ```
 2. Place the binary somewhere in `$PATH`.
 
+## Configuration
+
+git-fmt is supported by the standard `git config` options. This means you can
+define formatters for all your projects by modifying your global
+`.gitconfig` or apply formatter commands only to a specific repository by
+modifying the `.git/config` file found in every repository.
+
+You could apply changes by using the cli. For example...
+```bash
+git config fmt.rust.command "rustfmt {{STAGED_FILE}}" # Apply locally.
+git config --global fmt.rust.command "rustfmt {{STAGED_FILE}}"
+```
+
+You could also apply changes directly to your global `gitconfig` file.
+```yaml
+[fmt "rust"]
+  command = "rustfmt {{STAGED_FILE}}"
+  extensions = "rs"
+
+[fmt "go"]
+  command = "gofmt -w {{STAGED_FILE}}"
+  extensions = "go, gox" # Separate additional extensions with commas.
+```

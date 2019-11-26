@@ -1,20 +1,18 @@
 extern crate git2;
-extern crate serde;
-extern crate toml;
+extern crate log;
 
 use std::collections::HashMap;
 use std::error::Error;
 use std::ffi::OsStr;
-use std::fs::read_to_string;
 use std::path::Path;
 use std::process::Command;
 
 use git2::{Repository, Status};
-use serde::Deserialize;
-
-const CONFIG_NAME: &'static str = "GitFormat.toml";
+use log::warn;
 
 const FILE_TEMPLATE: &'static str = "{{STAGED_FILE}}";
+
+const OPTION_KEY: &'static str = "fmt";
 
 type FormatterDirectory = HashMap<String, FormatterOption>;
 
@@ -23,7 +21,7 @@ pub struct Formatter {
     repo: Repository,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 struct FormatterOption {
     /// Template for the formatting command.
     command: Option<String>,
@@ -31,15 +29,66 @@ struct FormatterOption {
     extensions: Option<Vec<String>>,
 }
 
+type Opt = HashMap<String, String>;
+
+/// Collects fmt options into map keyed by the language.
+/// language -> ...options
+fn collect_formatters(config: ::git2::Config) -> HashMap<String, Opt> {
+    let mut formatters = HashMap::new();
+
+    for entry in &config.entries(None).unwrap() {
+        let entry = entry.unwrap();
+        let path: Vec<&str> = entry.name().unwrap().split(".").collect();
+
+        if let Some(name) = path.get(0) {
+            if name == &OPTION_KEY {
+                if path.len() != 3 {
+                    warn!(
+                        "Option {} does not match format (fmt.<language>.<option>).",
+                        entry.name().unwrap()
+                    );
+                    continue;
+                }
+
+                let lang = path.get(1).unwrap();
+                let opt = path.get(2).unwrap();
+
+                let item = formatters
+                    .entry(lang.to_string())
+                    .or_insert_with(|| HashMap::new());
+
+                item.insert(opt.to_string(), entry.value().unwrap().to_string());
+            }
+        }
+    }
+    formatters
+}
+
 impl Formatter {
-    /// This method finds config files locating in the root directory of the
-    /// repository. This allows `git fmt` to work from anywhere within a repository.
-    /// This method does not work in bare repositories.
-    pub fn from_root_config() -> Result<Self, Box<dyn Error>> {
+    /// Initialize a formatter using the git config values belonging to the local
+    /// workspace. Final results will depend on values in parent configs with local
+    /// values taking precedent. See git-config ancestry rules for more information.
+    pub fn from_local_workspace() -> Result<Self, Box<dyn Error>> {
         let repo = Repository::open(".")?;
-        let workdir = repo.workdir().unwrap_or(Path::new("."));
-        let config_content = read_to_string(workdir.join(CONFIG_NAME))?;
-        Self::new(&config_content, repo)
+        let config = repo.config()?;
+        let opts = collect_formatters(config);
+
+        let mut formatters = HashMap::new();
+        for (lang, opt) in &opts {
+            let cmd = opt.get("command").unwrap();
+            let ext: Vec<&str> = opt.get("extensions").unwrap().split(',').collect();
+            let parsed: Vec<String> = ext.into_iter().map(|s| s.trim().to_string()).collect();
+
+            formatters.insert(
+                lang.to_string(),
+                FormatterOption {
+                    command: Some(cmd.to_string()),
+                    extensions: Some(parsed),
+                },
+            );
+        }
+
+        Ok(Self { formatters, repo })
     }
 
     /// Formats all the files currently checked into the index with a valid
@@ -62,13 +111,6 @@ impl Formatter {
             };
         }
         return Ok(());
-    }
-
-    // Private
-    fn new(config: &str, repo: Repository) -> Result<Self, Box<dyn Error>> {
-        let mut formatters: FormatterDirectory = toml::from_str(config)?;
-        formatters.retain(|_, v| v.command.is_some() && v.extensions.is_some());
-        Ok(Self { formatters, repo })
     }
 
     fn get_command(&self, pathname: &Path) -> Option<&String> {
