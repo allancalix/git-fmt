@@ -35,8 +35,13 @@ modifying the `.git/config` file found in every repository.
 
 You could apply changes by using the cli. For example...
 ```bash
-git config fmt.rust.command "rustfmt {{STAGED_FILE}}" # Apply locally.
+# Local repository changes.
+git config fmt.rust.command "rustfmt {{STAGED_FILE}}"
+git config fmt.rust.extensions "rs"
+
+# Global changes that apply to all repositories.
 git config --global fmt.rust.command "rustfmt {{STAGED_FILE}}"
+git config --global fmt.rust.extensions "rs"
 ```
 
 You could also apply changes directly to your global `gitconfig` file.
