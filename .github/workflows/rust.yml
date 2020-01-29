@@ -11,17 +11,15 @@ jobs:
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        target: amd64
         override: true
     - uses: actions-rs/cargo@v1
       with:
-        use-cross: true
         command: build
-        args: --target amd64
+        args: --release
     - name: Archive binary
       uses: actions/upload-artifact@v1
       with:
-        name: git-fmt_amd64.tar.gz
+        name: git-fmt_x86_64-unknown-linux-gnu.tar.gz
         path: target/release/git-fmt
 
   build_mac:
@@ -36,9 +34,8 @@ jobs:
         override: true
     - uses: actions-rs/cargo@v1
       with:
-        use-cross: true
         command: build
-        args: --target x86_64-apple-darwin
+        args: --release
     - name: Archive binary
       uses: actions/upload-artifact@v1
       with:
