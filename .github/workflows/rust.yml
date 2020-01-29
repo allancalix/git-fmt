@@ -12,13 +12,13 @@ jobs:
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        target: x86_64_apple_darwin
+        target: x86_64-apple-darwin
         override: true
     - uses: actions-rs/cargo@v1
       with:
         use-cross: true
         command: build
-        args: --target x86_64_apple_darwin
+        args: --target x86_64-apple-darwin
     - name: Archive binary
       uses: actions/upload-artifact@v1
       with:
