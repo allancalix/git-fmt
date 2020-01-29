@@ -9,14 +9,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Build
-      run: cargo build --release --verbose
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: x86_64_apple_darwin
+        override: true
+    - uses: actions-rs/cargo@v1
+      with:
+        use-cross: true
+        command: build
+        args: --target x86_64_apple_darwin
     - name: Archive binary
       uses: actions/upload-artifact@v1
       with:
-        name: git-fmt
+        name: git-fmt_x86_64_apple_darwin.tar.gz
         path: target/release/git-fmt
 
 
