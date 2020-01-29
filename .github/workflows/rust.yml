@@ -3,10 +3,30 @@ name: Build
 on: [push]
 
 jobs:
-  build:
-
+  build_linux:
+    name: Linux Build
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: amd64
+        override: true
+    - uses: actions-rs/cargo@v1
+      with:
+        use-cross: true
+        command: build
+        args: --target amd64
+    - name: Archive binary
+      uses: actions/upload-artifact@v1
+      with:
+        name: git-fmt_amd64.tar.gz
+        path: target/release/git-fmt
 
+  build_mac:
+    name: MacOS Build
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
