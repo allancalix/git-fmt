@@ -4,5 +4,5 @@ version = "0.0.1"
 authors = ["Allan Calix <allan@allancalix.com>"]
 
 [dependencies]
-git2 = "0.13.4"
+git2 = "0.13.5"
 log = "0.4.8"
