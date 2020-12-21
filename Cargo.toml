@@ -13,6 +13,6 @@ members = [
 ]
 
 [dependencies]
-git2 = "0.13.12"
+git2 = "0.13.13"
 formatter = { version = "0.0.1", path = "formatter" }
 
