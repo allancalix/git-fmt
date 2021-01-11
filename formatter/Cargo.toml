@@ -5,4 +5,4 @@ authors = ["Allan Calix <allan@allancalix.com>"]
 
 [dependencies]
 git2 = "0.13.15"
-log = "0.4.11"
+log = "0.4.13"
